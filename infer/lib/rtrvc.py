@@ -1,4 +1,7 @@
 from io import BytesIO
+from fairseq.data.dictionary import Dictionary
+import torch
+torch.serialization.add_safe_globals([Dictionary])
 import os
 import sys
 import traceback

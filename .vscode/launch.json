@@ -1,0 +1,28 @@
+{
+    // 使用 VS Code 调试 Python 脚本，确保 PYTHONPATH 包含项目根目录
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: gui_v1.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/gui_v1.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Python: rtrvc.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/infer/lib/rtrvc.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}
