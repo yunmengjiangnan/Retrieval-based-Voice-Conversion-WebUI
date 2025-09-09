@@ -48,7 +48,7 @@ def check_model(
 def check_all_assets(update=False) -> bool:
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-    logger.info("checking hubret & rmvpe...")
+    logger.info("checking hubert & rmvpe...")
 
     if not check_model(
         BASE_DIR / "assets" / "hubert",
@@ -170,7 +170,7 @@ def download_dns_yaml(url: str, folder: str):
         logger.info(f"downloaded into {folder}")
 
 
-def download_all_assets(tmpdir: str, version="0.2.2"):
+def download_all_assets(tmpdir: str, version="0.2.5"):
     import subprocess
     import platform
 
@@ -195,9 +195,7 @@ def download_all_assets(tmpdir: str, version="0.2.2"):
         logger.error(f"architecture {architecture} is not supported")
         exit(1)
     try:
-        BASE_URL = (
-            "https://github.com/RVC-Project/RVC-Models-Downloader/releases/download/"
-        )
+        BASE_URL = "https://github.com/fumiama/RVC-Models-Downloader/releases/download/"
         suffix = "zip" if is_win else "tar.gz"
         RVCMD_URL = BASE_URL + f"v{version}/rvcmd_{system_type}_{architecture}.{suffix}"
         cmdfile = os.path.join(tmpdir, "rvcmd")
@@ -207,17 +205,17 @@ def download_all_assets(tmpdir: str, version="0.2.2"):
         else:
             download_and_extract_tar_gz(RVCMD_URL, tmpdir)
             os.chmod(cmdfile, 0o755)
-        subprocess.run([cmdfile, "-notui", "-w", "0", "assets/all"])
+        subprocess.run([cmdfile, "-notui", "-w", "0", "assets/rvc"])
     except Exception:
         BASE_URL = "https://raw.gitcode.com/u011570312/RVC-Models-Downloader/assets/"
         suffix = {
-            "darwin_amd64": "421",
-            "darwin_arm64": "422",
-            "linux_386": "423",
-            "linux_amd64": "424",
-            "linux_arm64": "425",
-            "windows_386": "426",
-            "windows_amd64": "427",
+            "darwin_amd64": "555",
+            "darwin_arm64": "556",
+            "linux_386": "557",
+            "linux_amd64": "558",
+            "linux_arm64": "559",
+            "windows_386": "562",
+            "windows_amd64": "563",
         }[f"{system_type}_{architecture}"]
         RVCMD_URL = BASE_URL + suffix
         download_dns_yaml(
@@ -238,6 +236,6 @@ def download_all_assets(tmpdir: str, version="0.2.2"):
                 "0",
                 "-dns",
                 os.path.join(tmpdir, "dns.yaml"),
-                "assets/all",
+                "assets/rvc",
             ]
         )

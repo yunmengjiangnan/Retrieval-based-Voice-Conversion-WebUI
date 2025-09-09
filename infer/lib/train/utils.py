@@ -3,10 +3,10 @@ import glob
 import json
 import logging
 import os
-import subprocess
 import sys
-import shutil
+from copy import deepcopy
 
+import codecs
 import numpy as np
 import torch
 from scipy.io.wavfile import read
@@ -16,90 +16,17 @@ MATPLOTLIB_FLAG = False
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging
 
+logging.getLogger("numba").setLevel(logging.WARNING)
+logging.getLogger("markdown_it").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
-def load_checkpoint_d(checkpoint_path, combd, sbd, optimizer=None, load_opt=1):
-    assert os.path.isfile(checkpoint_path)
-    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
-
-    ##################
-    def go(model, bkey):
-        saved_state_dict = checkpoint_dict[bkey]
-        if hasattr(model, "module"):
-            state_dict = model.module.state_dict()
-        else:
-            state_dict = model.state_dict()
-        new_state_dict = {}
-        for k, v in state_dict.items():  # 模型需要的shape
-            try:
-                new_state_dict[k] = saved_state_dict[k]
-                if saved_state_dict[k].shape != state_dict[k].shape:
-                    logger.warning(
-                        "shape-%s-mismatch. need: %s, get: %s",
-                        k,
-                        state_dict[k].shape,
-                        saved_state_dict[k].shape,
-                    )  #
-                    raise KeyError
-            except:
-                # logger.info(traceback.format_exc())
-                logger.info("%s is not in the checkpoint", k)  # pretrain缺失的
-                new_state_dict[k] = v  # 模型自带的随机值
-        if hasattr(model, "module"):
-            model.module.load_state_dict(new_state_dict, strict=False)
-        else:
-            model.load_state_dict(new_state_dict, strict=False)
-        return model
-
-    go(combd, "combd")
-    model = go(sbd, "sbd")
-    #############
-    logger.info("Loaded model weights")
-
-    iteration = checkpoint_dict["iteration"]
-    learning_rate = checkpoint_dict["learning_rate"]
-    if (
-        optimizer is not None and load_opt == 1
-    ):  ###加载不了，如果是空的的话，重新初始化，可能还会影响lr时间表的更新，因此在train文件最外围catch
-        #   try:
-        optimizer.load_state_dict(checkpoint_dict["optimizer"])
-    #   except:
-    #     traceback.print_exc()
-    logger.info("Loaded checkpoint '{}' (epoch {})".format(checkpoint_path, iteration))
-    return model, optimizer, learning_rate, iteration
+import matplotlib.pylab as plt
 
 
-# def load_checkpoint(checkpoint_path, model, optimizer=None):
-#   assert os.path.isfile(checkpoint_path)
-#   checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
-#   iteration = checkpoint_dict['iteration']
-#   learning_rate = checkpoint_dict['learning_rate']
-#   if optimizer is not None:
-#     optimizer.load_state_dict(checkpoint_dict['optimizer'])
-#   # print(1111)
-#   saved_state_dict = checkpoint_dict['model']
-#   # print(1111)
-#
-#   if hasattr(model, 'module'):
-#     state_dict = model.module.state_dict()
-#   else:
-#     state_dict = model.state_dict()
-#   new_state_dict= {}
-#   for k, v in state_dict.items():
-#     try:
-#       new_state_dict[k] = saved_state_dict[k]
-#     except:
-#       logger.info("%s is not in the checkpoint" % k)
-#       new_state_dict[k] = v
-#   if hasattr(model, 'module'):
-#     model.module.load_state_dict(new_state_dict)
-#   else:
-#     model.load_state_dict(new_state_dict)
-#   logger.info("Loaded checkpoint '{}' (epoch {})" .format(
-#     checkpoint_path, iteration))
-#   return model, optimizer, learning_rate, iteration
 def load_checkpoint(checkpoint_path, model, optimizer=None, load_opt=1):
     assert os.path.isfile(checkpoint_path)
-    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu")
+    checkpoint_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
 
     saved_state_dict = checkpoint_dict["model"]
     if hasattr(model, "module"):
@@ -162,32 +89,6 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path)
     )
 
 
-def save_checkpoint_d(combd, sbd, optimizer, learning_rate, iteration, checkpoint_path):
-    logger.info(
-        "Saving model and optimizer state at epoch {} to {}".format(
-            iteration, checkpoint_path
-        )
-    )
-    if hasattr(combd, "module"):
-        state_dict_combd = combd.module.state_dict()
-    else:
-        state_dict_combd = combd.state_dict()
-    if hasattr(sbd, "module"):
-        state_dict_sbd = sbd.module.state_dict()
-    else:
-        state_dict_sbd = sbd.state_dict()
-    torch.save(
-        {
-            "combd": state_dict_combd,
-            "sbd": state_dict_sbd,
-            "iteration": iteration,
-            "optimizer": optimizer.state_dict(),
-            "learning_rate": learning_rate,
-        },
-        checkpoint_path,
-    )
-
-
 def summarize(
     writer,
     global_step,
@@ -209,7 +110,13 @@ def summarize(
 
 def latest_checkpoint_path(dir_path, regex="G_*.pth"):
     f_list = glob.glob(os.path.join(dir_path, regex))
-    f_list.sort(key=lambda f: int("".join(filter(str.isdigit, f))))
+    f_list.sort(
+        key=lambda f: (
+            999999999999
+            if isinstance(f, str) and f == "latest"
+            else int("0" + "".join(filter(str.isdigit, f)))
+        )
+    )
     x = f_list[-1]
     logger.debug(x)
     return x
@@ -224,8 +131,6 @@ def plot_spectrogram_to_numpy(spectrogram):
         MATPLOTLIB_FLAG = True
         mpl_logger = logging.getLogger("matplotlib")
         mpl_logger.setLevel(logging.WARNING)
-    import matplotlib.pylab as plt
-    import numpy as np
 
     fig, ax = plt.subplots(figsize=(10, 2))
     im = ax.imshow(spectrogram, aspect="auto", origin="lower", interpolation="none")
@@ -235,8 +140,14 @@ def plot_spectrogram_to_numpy(spectrogram):
     plt.tight_layout()
 
     fig.canvas.draw()
-    data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep="")
-    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    try:
+        data = np.array(fig.canvas.renderer.buffer_rgba(), dtype=np.uint8)
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (4,))[
+            :, :, :3
+        ]  # 只取前三个通道（RGB）
+    except:
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep="")
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
     plt.close()
     return data
 
@@ -250,8 +161,6 @@ def plot_alignment_to_numpy(alignment, info=None):
         MATPLOTLIB_FLAG = True
         mpl_logger = logging.getLogger("matplotlib")
         mpl_logger.setLevel(logging.WARNING)
-    import matplotlib.pylab as plt
-    import numpy as np
 
     fig, ax = plt.subplots(figsize=(6, 4))
     im = ax.imshow(
@@ -266,8 +175,14 @@ def plot_alignment_to_numpy(alignment, info=None):
     plt.tight_layout()
 
     fig.canvas.draw()
-    data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep="")
-    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    try:
+        data = np.array(fig.canvas.renderer.buffer_rgba(), dtype=np.uint8)
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (4,))[
+            :, :, :3
+        ]  # 只取前三个通道（RGB）
+    except:
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep="")
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
     plt.close()
     return data
 
@@ -278,9 +193,15 @@ def load_wav_to_torch(full_path):
 
 
 def load_filepaths_and_text(filename, split="|"):
-    with open(filename, encoding="utf-8") as f:
-        filepaths_and_text = [line.strip().split(split) for line in f]
-    return filepaths_and_text
+    try:
+        return [
+            line.strip().split(split)
+            for line in codecs.open(filename, encoding="utf-8")
+        ]
+    except UnicodeDecodeError as e:
+        logger.error("Error loading file %s: %s", filename, e)
+
+    return []
 
 
 def get_hparams(init=True):
@@ -358,6 +279,7 @@ def get_hparams(init=True):
         required=True,
         help="if caching the dataset in GPU memory, 1 or 0",
     )
+    parser.add_argument("-a", "--author", type=str, default="", help="Model author")
 
     args = parser.parse_args()
     name = args.experiment_dir
@@ -383,52 +305,8 @@ def get_hparams(init=True):
     hparams.save_every_weights = args.save_every_weights
     hparams.if_cache_data_in_gpu = args.if_cache_data_in_gpu
     hparams.data.training_files = "%s/filelist.txt" % experiment_dir
+    hparams.author = args.author
     return hparams
-
-
-def get_hparams_from_dir(model_dir):
-    config_save_path = os.path.join(model_dir, "config.json")
-    with open(config_save_path, "r") as f:
-        data = f.read()
-    config = json.loads(data)
-
-    hparams = HParams(**config)
-    hparams.model_dir = model_dir
-    return hparams
-
-
-def get_hparams_from_file(config_path):
-    with open(config_path, "r") as f:
-        data = f.read()
-    config = json.loads(data)
-
-    hparams = HParams(**config)
-    return hparams
-
-
-def check_git_hash(model_dir):
-    source_dir = os.path.dirname(os.path.realpath(__file__))
-    if not os.path.exists(os.path.join(source_dir, ".git")):
-        logger.warning(
-            "{} is not a git repository, therefore hash value comparison will be ignored.".format(
-                source_dir
-            )
-        )
-        return
-
-    cur_hash = subprocess.getoutput("git rev-parse HEAD")
-
-    path = os.path.join(model_dir, "githash")
-    if os.path.exists(path):
-        saved_hash = open(path).read()
-        if saved_hash != cur_hash:
-            logger.warning(
-                "git hash values are different. {}(saved) != {}(current)".format(
-                    saved_hash[:8], cur_hash[:8]
-                )
-            )
-    else:
-        open(path, "w").write(cur_hash)
 
 
 def get_logger(model_dir, filename="train.log"):
@@ -461,6 +339,9 @@ class HParams:
 
     def values(self):
         return self.__dict__.values()
+
+    def copy(self):
+        return deepcopy(self)
 
     def __len__(self):
         return len(self.__dict__)

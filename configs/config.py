@@ -7,15 +7,7 @@ from multiprocessing import cpu_count
 
 import torch
 
-try:
-    import intel_extension_for_pytorch as ipex  # pylint: disable=import-error, unused-import
-
-    if torch.xpu.is_available():
-        from infer.modules.ipex import ipex_init
-
-        ipex_init()
-except Exception:  # pylint: disable=broad-exception-caught
-    pass
+# TODO: move device selection into rvc
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,18 +22,16 @@ version_config_list = [
 ]
 
 
-def singleton_variable(func):
-    def wrapper(*args, **kwargs):
-        if not wrapper.instance:
-            wrapper.instance = func(*args, **kwargs)
-        return wrapper.instance
+class Singleton(type):
+    _instances = {}
 
-    wrapper.instance = None
-    return wrapper
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-@singleton_variable
-class Config:
+class Config(metaclass=Singleton):
     def __init__(self):
         self.device = "cuda:0"
         self.is_half = True
@@ -53,7 +43,7 @@ class Config:
         (
             self.python_cmd,
             self.listen_port,
-            self.iscolab,
+            self.global_link,
             self.noparallel,
             self.noautoopen,
             self.dml,
@@ -81,7 +71,9 @@ class Config:
         parser = argparse.ArgumentParser()
         parser.add_argument("--port", type=int, default=7865, help="Listen port")
         parser.add_argument("--pycmd", type=str, default=exe, help="Python command")
-        parser.add_argument("--colab", action="store_true", help="Launch in colab")
+        parser.add_argument(
+            "--global_link", action="store_true", help="Generate a global proxy link"
+        )
         parser.add_argument(
             "--noparallel", action="store_true", help="Disable parallel processing"
         )
@@ -108,7 +100,7 @@ class Config:
         return (
             cmd_opts.pycmd,
             cmd_opts.port,
-            cmd_opts.colab,
+            cmd_opts.global_link,
             cmd_opts.noparallel,
             cmd_opts.noautoopen,
             cmd_opts.dml,
@@ -135,6 +127,16 @@ class Config:
         else:
             return False
 
+    @staticmethod
+    def use_insecure_load():
+        try:
+            from fairseq.data.dictionary import Dictionary
+
+            torch.serialization.add_safe_globals([Dictionary])
+            logging.warning("Using insecure weight loading for fairseq dictionary")
+        except AttributeError:
+            pass
+
     def use_fp32_config(self):
         for config_file in version_config_list:
             self.json_config[config_file]["train"]["fp16_run"] = False
@@ -146,7 +148,7 @@ class Config:
         self.preprocess_per = 3.0
         logger.info("overwrite preprocess_per to %d" % (self.preprocess_per))
 
-    def device_config(self) -> tuple:
+    def device_config(self):
         if torch.cuda.is_available():
             if self.has_xpu():
                 self.device = self.instead = "xpu:0"
@@ -209,27 +211,6 @@ class Config:
             x_max = 32
         if self.dml:
             logger.info("Use DirectML instead")
-            if (
-                os.path.exists(
-                    "runtime\Lib\site-packages\onnxruntime\capi\DirectML.dll"
-                )
-                == False
-            ):
-                try:
-                    os.rename(
-                        "runtime\Lib\site-packages\onnxruntime",
-                        "runtime\Lib\site-packages\onnxruntime-cuda",
-                    )
-                except:
-                    pass
-                try:
-                    os.rename(
-                        "runtime\Lib\site-packages\onnxruntime-dml",
-                        "runtime\Lib\site-packages\onnxruntime",
-                    )
-                except:
-                    pass
-            # if self.device != "cpu":
             import torch_directml
 
             self.device = torch_directml.device(torch_directml.default_device())
@@ -237,28 +218,55 @@ class Config:
         else:
             if self.instead:
                 logger.info(f"Use {self.instead} instead")
-            if (
-                os.path.exists(
-                    "runtime\Lib\site-packages\onnxruntime\capi\onnxruntime_providers_cuda.dll"
-                )
-                == False
-            ):
-                try:
-                    os.rename(
-                        "runtime\Lib\site-packages\onnxruntime",
-                        "runtime\Lib\site-packages\onnxruntime-dml",
-                    )
-                except:
-                    pass
-                try:
-                    os.rename(
-                        "runtime\Lib\site-packages\onnxruntime-cuda",
-                        "runtime\Lib\site-packages\onnxruntime",
-                    )
-                except:
-                    pass
+
         logger.info(
             "Half-precision floating-point: %s, device: %s"
             % (self.is_half, self.device)
         )
+
+        # Check if the pytorch is 2.6 or higher
+        if tuple(map(int, torch.__version__.split("+")[0].split("."))) >= (2, 6, 0):
+            self.use_insecure_load()
+
+        return x_pad, x_query, x_center, x_max
+
+
+class CPUConfig(metaclass=Singleton):
+    def __init__(self):
+        self.device = "cpu"
+        self.is_half = False
+        self.use_jit = False
+        self.n_cpu = 1
+        self.gpu_name = None
+        self.json_config = self.load_config_json()
+        self.gpu_mem = None
+        self.instead = "cpu"
+        self.preprocess_per = 3.7
+        self.x_pad, self.x_query, self.x_center, self.x_max = self.device_config()
+
+    @staticmethod
+    def load_config_json() -> dict:
+        d = {}
+        for config_file in version_config_list:
+            with open(f"configs/{config_file}", "r") as f:
+                d[config_file] = json.load(f)
+        return d
+
+    def use_fp32_config(self):
+        for config_file in version_config_list:
+            self.json_config[config_file]["train"]["fp16_run"] = False
+        self.preprocess_per = 3.0
+
+    def device_config(self):
+        self.use_fp32_config()
+
+        if self.n_cpu == 0:
+            self.n_cpu = cpu_count()
+
+        # 5G显存配置
+        x_pad = 1
+        x_query = 6
+        x_center = 38
+        x_max = 41
+
         return x_pad, x_query, x_center, x_max

@@ -18,13 +18,12 @@ from time import time as ttime
 # import pyworld
 import librosa
 import numpy as np
-import soundfile as sf
 import torch.nn.functional as F
 from fairseq import checkpoint_utils
 
 # from models import SynthesizerTrn256#hifigan_nonsf
 # from lib.infer_pack.models import SynthesizerTrn256NSF as SynthesizerTrn256#hifigan_nsf
-from infer.lib.infer_pack.models import (
+from rvc.layers.synthesizers import (
     SynthesizerTrnMs256NSFsid as SynthesizerTrn256,
 )  # hifigan_nsf
 from scipy.io import wavfile
@@ -33,6 +32,7 @@ from scipy.io import wavfile
 # from models import SynthesizerTrn256NSFsim as SynthesizerTrn256#hifigan_nsf
 # from models import SynthesizerTrn256NSFsimFlow as SynthesizerTrn256#hifigan_nsf
 
+from infer.lib.audio import load_audio
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_path = r"E:\codes\py39\vits_vc_gpu_train\assets\hubert\hubert_base.pt"  #
@@ -132,7 +132,7 @@ for idx, name in enumerate(
 ):  ##
     wav_path = "todo-songs/%s" % name  #
     f0_up_key = -2  #
-    audio, sampling_rate = sf.read(wav_path)
+    audio, sampling_rate = load_audio(wav_path)
     if len(audio.shape) > 1:
         audio = librosa.to_mono(audio.transpose(1, 0))
     if sampling_rate != 16000:
@@ -183,7 +183,7 @@ for idx, name in enumerate(
     pitchf = torch.FloatTensor(pitchf).unsqueeze(0).to(device)
     with torch.no_grad():
         audio = (
-            net_g.infer(feats, p_len, pitch, pitchf, sid)[0][0, 0]
+            net_g.infer(feats, p_len, sid, pitch=pitch, pitchf=pitchf)[0, 0]
             .data.cpu()
             .float()
             .numpy()

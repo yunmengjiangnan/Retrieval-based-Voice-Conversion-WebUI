@@ -1,26 +1,25 @@
 <div align="center">
 
-<h1>Retrieval-based-Voice-Conversion-WebUI</h1>
-VITS基盤의 簡單하고使用하기 쉬운音聲變換틀<br><br>
+# Retrieval-based-Voice-Conversion-WebUI
+VITS基盤의 簡單하고使用하기 쉬운音聲變換틀
+
+
 
 [![madewithlove](https://img.shields.io/badge/made_with-%E2%9D%A4-red?style=for-the-badge&labelColor=orange
-)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
+)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI)
 
-<img src="https://counter.seku.su/cmoe?name=rvc&theme=r34" /><br>
-  
-[![RVC v1](https://img.shields.io/badge/RVCv1-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v1.ipynb)
-[![RVC v2](https://img.shields.io/badge/RVCv2-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v2.ipynb)
-[![Licence](https://img.shields.io/github/license/RVC-Project/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
-[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/)
+![moe](https://counter.seku.su/cmoe?name=rvc&theme=r34)
+
+[![Licence](https://img.shields.io/github/license/fumiama/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
+[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/)
 
 [![Discord](https://img.shields.io/badge/RVC%20Developers-Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/HcsmBBGyVk)
 
 </div>
 
 ------
-[**更新日誌**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/docs/Changelog_KO.md)
 
-[**English**](../en/README.en.md) | [**中文简体**](../../README.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Français**](../fr/README.fr.md) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
+[**English**](../../README.md) | [**中文简体**](../cn/README.cn.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Français**](../fr/README.fr.md) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
 
 > [示範映像](https://www.bilibili.com/video/BV1pm4y1z7Gm/)을 確認해 보세요!
 
@@ -61,13 +60,13 @@ poetry install
 pip를 活用하여依存를 設置하여도 無妨합니다.
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements/main.txt
 ```
 
 ## 其他預備모델準備
 RVC 모델은 推論과訓練을 依하여 다른 預備모델이 必要합니다.
 
-[Huggingface space](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/)를 通해서 다운로드 할 수 있습니다.
+[Huggingface space](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/)를 通해서 다운로드 할 수 있습니다.
 
 다음은 RVC에 必要한 預備모델 및 其他 파일 目錄입니다:
 ```bash
@@ -81,12 +80,10 @@ V2 버전 모델을 테스트하려면 추가 다운로드가 필요합니다.
 
 ./assets/pretrained_v2
 
-# Windows를 使用하는境遇 이 사전도 必要할 수 있습니다. FFmpeg가 設置되어 있으면 건너뛰어도 됩니다.
-ffmpeg.exe
 ```
 그後 以下의 命令을 使用하여 WebUI를 始作할 수 있습니다:
 ```bash
-python infer-web.py
+python web.py
 ```
 Windows를 使用하는境遇 `RVC-beta.7z`를 다운로드 및 壓縮解除하여 RVC를 直接使用하거나 `go-web.bat`을 使用하여 WebUi를 直接할 수 있습니다.
 
@@ -95,12 +92,9 @@ Windows를 使用하는境遇 `RVC-beta.7z`를 다운로드 및 壓縮解除하�
 + [VITS](https://github.com/jaywalnut310/vits)
 + [HIFIGAN](https://github.com/jik876/hifi-gan)
 + [Gradio](https://github.com/gradio-app/gradio)
-+ [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 + [Ultimate Vocal Remover](https://github.com/Anjok07/ultimatevocalremovergui)
 + [audio-slicer](https://github.com/openvpi/audio-slicer)
 ## 모든寄與者분들의勞力에感謝드립니다
 
-<a href="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors" target="_blank">
-  <img src="https://contrib.rocks/image?repo=RVC-Project/Retrieval-based-Voice-Conversion-WebUI" />
-</a>
+[![contributors](https://contrib.rocks/image?repo=fumiama/Retrieval-based-Voice-Conversion-WebUI)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors)
 

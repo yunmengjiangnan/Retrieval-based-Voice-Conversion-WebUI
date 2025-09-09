@@ -1,26 +1,24 @@
 <div align="center">
 
-<h1>Retrieval-based-Voice-Conversion-WebUI</h1>
-Uma estrutura de conversão de voz fácil de usar baseada em VITS.<br><br>
+# Retrieval-based-Voice-Conversion-WebUI
+Uma estrutura de conversão de voz fácil de usar baseada em VITS.
 
 [![madewithlove](https://img.shields.io/badge/made_with-%E2%9D%A4-red?style=for-the-badge&labelColor=orange
-)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
+)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI)
 
-<img src="https://counter.seku.su/cmoe?name=rvc&theme=r34" /><br>
-  
-[![RVC v1](https://img.shields.io/badge/RVCv1-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v1.ipynb)
-[![RVC v2](https://img.shields.io/badge/RVCv2-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v2.ipynb)
-[![Licence](https://img.shields.io/github/license/RVC-Project/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
-[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/)
+![moe](https://counter.seku.su/cmoe?name=rvc&theme=r34)
+
+[![Licence](https://img.shields.io/github/license/fumiama/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
+[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/)
 
 [![Discord](https://img.shields.io/badge/RVC%20Developers-Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/HcsmBBGyVk)
 
 </div>
 
 ------
-[**Changelog**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/docs/Changelog_EN.md) | [**FAQ (Frequently Asked Questions)**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/wiki/FAQ-(Frequently-Asked-Questions)) 
+[**FAQ (Frequently Asked Questions)**](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/wiki/FAQ-(Frequently-Asked-Questions)) 
 
-[**English**](../en/README.en.md) | [**中文简体**](../../README.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
+[**English**](../../README.md) | [**中文简体**](../cn/README.cn.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
 
 
 Confira nosso [Vídeo de demonstração](https://www.bilibili.com/video/BV1pm4y1z7Gm/) aqui!
@@ -60,11 +58,11 @@ Primeiro instale as dependências principais através do pip:
 # Referência: https://pytorch.org/get-started/locally/
 pip install torch torchvision torchaudio
 
-#Para arquitetura Windows + Nvidia Ampere (RTX30xx), você precisa especificar a versão cuda correspondente ao pytorch de acordo com a experiência de https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/issues/ 21
+#Para arquitetura Windows + Nvidia Ampere (RTX30xx), você precisa especificar a versão cuda correspondente ao pytorch de acordo com a experiência de https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/issues/ 21
 #pip instalar tocha torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
 
 #Para placas Linux + AMD, você precisa usar as seguintes versões do pytorch:
-#pip instalar tocha torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2
+#pip instalar tocha torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
 ```
 
 Então pode usar poesia para instalar as outras dependências:
@@ -81,16 +79,16 @@ Você também pode usar pip para instalá-los:
 ```bash
 
 for Nvidia graphics cards
-  pip install -r requirements.txt
+  pip install -r requirements/main.txt
 
 for AMD/Intel graphics cards on Windows (DirectML)：
-  pip install -r requirements-dml.txt
+  pip install -r requirements/dml.txt
 
 for Intel ARC graphics cards on Linux / WSL using Python 3.10: 
-  pip install -r requirements-ipex.txt
+  pip install -r requirements/ipex.txt
 
 for AMD graphics cards on Linux (ROCm):
-  pip install -r requirements-amd.txt
+  pip install -r requirements/amd.txt
 ```
 
 ------
@@ -103,11 +101,10 @@ sh ./run.sh
 RVC requer outros pré-modelos para inferir e treinar.
 
 ```bash
-#Baixe todos os modelos necessários em https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/
 python tools/download_models.py
 ```
 
-Ou apenas baixe-os você mesmo em nosso [Huggingface space](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/).
+Ou apenas baixe-os você mesmo em nosso [Huggingface space](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/).
 
 Aqui está uma lista de pré-modelos e outros arquivos que o RVC precisa:
 ```bash
@@ -125,22 +122,13 @@ Se você deseja testar o modelo da versão v2 (o modelo da versão v2 alterou a 
 
 ./assets/pretrained_v2
 
-#Se você estiver usando Windows, também pode precisar desses dois arquivos, pule se FFmpeg e FFprobe estiverem instalados
-ffmpeg.exe
-
-https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/ffmpeg.exe
-
-ffprobe.exe
-
-https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/ffprobe.exe
-
 Se quiser usar o algoritmo de extração de tom vocal SOTA RMVPE mais recente, você precisa baixar os pesos RMVPE e colocá-los no diretório raiz RVC
 
-https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/rmvpe.pt
+https://huggingface.co/fumiama/RVC-Pretrained-Models/blob/main/rmvpe/rmvpe.pt
 
     Para usuários de placas gráficas AMD/Intel, você precisa baixar:
 
-    https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/rmvpe.onnx
+    https://huggingface.co/fumiama/RVC-Pretrained-Models/blob/main/rmvpe/rmvpe.onnx
 
 ```
 
@@ -148,7 +136,7 @@ Os usuários de placas gráficas Intel ARC precisam executar o comando `source /
 
 Em seguida, use este comando para iniciar o Webui:
 ```bash
-python infer-web.py
+python web.py
 ```
 
 Se estiver usando Windows ou macOS, você pode baixar e extrair `RVC-beta.7z` para usar RVC diretamente usando `go-web.bat` no Windows ou `sh ./run.sh` no macOS para iniciar o Webui.
@@ -166,6 +154,10 @@ Talvez você também precise definir estas variáveis de ambiente (por exemplo, 
 export ROCM_PATH=/opt/rocm
 export HSA_OVERRIDE_GFX_VERSION=10.3.0
 ````
+E substitui o PyTorch pela sua versão ROCM depois de instalar as dependências.a
+````
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+```` 
 Verifique também se seu usuário faz parte do grupo `render` e `video`:
 ````
 sudo usermod -aG render $USERNAME
@@ -173,7 +165,7 @@ sudo usermod -aG video $USERNAME
 ````
 Depois disso, você pode executar o WebUI:
 ```bash
-python infer-web.py
+python web.py
 ```
 
 ## Credits
@@ -181,14 +173,11 @@ python infer-web.py
 + [VITS](https://github.com/jaywalnut310/vits)
 + [HIFIGAN](https://github.com/jik876/hifi-gan)
 + [Gradio](https://github.com/gradio-app/gradio)
-+ [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 + [Ultimate Vocal Remover](https://github.com/Anjok07/ultimatevocalremovergui)
 + [audio-slicer](https://github.com/openvpi/audio-slicer)
 + [Vocal pitch extraction:RMVPE](https://github.com/Dream-High/RMVPE)
   + The pretrained model is trained and tested by [yxlllc](https://github.com/yxlllc/RMVPE) and [RVC-Boss](https://github.com/RVC-Boss).
   
 ## Thanks to all contributors for their efforts
-<a href="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors" target="_blank">
-  <img src="https://contrib.rocks/image?repo=RVC-Project/Retrieval-based-Voice-Conversion-WebUI" />
-</a>
+[![contributors](https://contrib.rocks/image?repo=fumiama/Retrieval-based-Voice-Conversion-WebUI)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors)
 

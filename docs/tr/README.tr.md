@@ -1,27 +1,25 @@
 
 <div align="center">
 
-<h1>Çekme Temelli Ses Dönüşümü Web Arayüzü</h1>
-VITS'e dayalı kullanımı kolay bir Ses Dönüşümü çerçevesi.<br><br>
+# Çekme Temelli Ses Dönüşümü Web Arayüzü
+VITS'e dayalı kullanımı kolay bir Ses Dönüşümü çerçevesi.
 
 [![madewithlove](https://img.shields.io/badge/made_with-%E2%9D%A4-red?style=for-the-badge&labelColor=orange
-)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
+)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI)
 
-<img src="https://counter.seku.su/cmoe?name=rvc&theme=r34" /><br>
-  
-[![RVC v1](https://img.shields.io/badge/RVCv1-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v1.ipynb)
-[![RVC v2](https://img.shields.io/badge/RVCv2-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v2.ipynb)
-[![Lisans](https://img.shields.io/github/license/RVC-Project/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
-[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/)
+![moe](https://counter.seku.su/cmoe?name=rvc&theme=r34)
+
+[![Licence](https://img.shields.io/github/license/fumiama/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
+[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/)
 
 [![Discord](https://img.shields.io/badge/RVC%20Geliştiricileri-Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/HcsmBBGyVk)
 
 </div>
 
 ------
-[**Değişiklik Geçmişi**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/docs/Changelog_TR.md) | [**SSS (Sıkça Sorulan Sorular)**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/wiki/SSS-(Sıkça-Sorulan-Sorular)) 
+[**SSS (Sıkça Sorulan Sorular)**](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/wiki/SSS-(Sıkça-Sorulan-Sorular)) 
 
-[**İngilizce**](../en/README.en.md) | [**中文简体**](../../README.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Français**](../fr/README.fr.md) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
+[**İngilizce**](../../README.md) | [**中文简体**](../cn/README.cn.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Français**](../fr/README.fr.md) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
 
 Burada [Demo Video'muzu](https://www.bilibili.com/video/BV1pm4y1z7Gm/) izleyebilirsiniz!
 
@@ -55,7 +53,7 @@ Aşağıdaki komutlar, Python sürümü 3.8 veya daha yüksek olan bir ortamda �
 # Referans: https://pytorch.org/get-started/locally/
 pip install torch torchvision torchaudio
 
-# Windows + Nvidia Ampere Mimarisi(RTX30xx) için, https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/issues/21 deneyime göre pytorch'a karşılık gelen cuda sürümünü belirtmeniz gerekebilir
+# Windows + Nvidia Ampere Mimarisi(RTX30xx) için, https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/issues/21 deneyime göre pytorch'a karşılık gelen cuda sürümünü belirtmeniz gerekebilir
 #pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
 ```
 
@@ -73,13 +71,13 @@ Ayrıca bunları pip kullanarak da kurabilirsiniz:
 ```bash
 
 Nvidia grafik kartları için
-  pip install -r requirements.txt
+  pip install -r requirements/main.txt
 
 AMD/Intel grafik kartları için：
-  pip install -r requirements-dml.txt
+  pip install -r requirements/dml.txt
 
 Intel ARC grafik kartları için Linux / WSL ile Python 3.10 kullanarak: 
-  pip install -r requirements-ipex.txt
+  pip install -r requirements/ipex.txt
 
 ```
 
@@ -92,7 +90,7 @@ sh ./run.sh
 ## Diğer Ön Modellerin Hazırlanması
 RVC'nin çıkarım ve eğitim yapması için diğer ön modellere ihtiyacı vardır.
 
-Bu ön modelleri [Huggingface alanımızdan](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/) indirmeniz gerekecektir.
+Bu ön modelleri [Huggingface alanımızdan](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/) indirmeniz gerekecektir.
 
 İşte RVC'nin ihtiyaç duyduğu diğer ön modellerin ve dosyaların bir listesi:
 ```bash
@@ -110,22 +108,13 @@ V2 sürüm modelini test etmek isterseniz (v2 sürüm modeli, 9 katmanlı Hubert
 
 ./assets/pretrained_v2
 
-Eğer Windows kullanıyorsanız, FFmpeg ve FFprobe kurulu değilse bu iki dosyayı da indirmeniz gerekebilir.
-ffmpeg.exe
-
-https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/ffmpeg.exe
-
-ffprobe.exe
-
-https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/ffprobe.exe
-
 En son SOTA RMVPE vokal ton çıkarma algoritmasını kullanmak istiyorsanız, RMVPE ağırlıklarını indirip RVC kök dizinine koymalısınız.
 
-https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/rmvpe.pt
+https://huggingface.co/fumiama/RVC-Pretrained-Models/blob/main/rmvpe/rmvpe.pt
 
     AMD/Intel grafik kartları kullanıcıları için indirmeniz gereken:
 
-    https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/rmvpe.onnx
+    https://huggingface.co/fumiama/RVC-Pretrained-Models/blob/main/rmvpe/rmvpe.onnx
 
 ```
 
@@ -133,7 +122,7 @@ Intel ARC grafik kartları kullanıcıları Webui'yi başlatmadan önce `source 
 
 Daha sonra bu komutu kullanarak Webui'yi başlatabilirsiniz:
 ```bash
-python infer-web.py
+python web.py
 ```
 Windows veya macOS kullanıyorsanız, `RVC-beta.7z` dosyasını indirip çıkararak `go-web.bat`i kullanarak veya macOS'ta `sh ./run.sh` kullanarak doğrudan RVC'yi kullanabilirsiniz.
 
@@ -142,14 +131,11 @@ Windows veya macOS kullanıyorsanız, `RVC-beta.7z` dosyasını indirip çıkara
 + [VITS](https://github.com/jaywalnut310/vits)
 + [HIFIGAN](https://github.com/jik876/hifi-gan)
 + [Gradio](https://github.com/gradio-app/gradio)
-+ [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 + [Ultimate Vocal Remover](https://github.com/Anjok07/ultimatevocalremovergui)
 + [audio-slicer](https://github.com/openvpi/audio-slicer)
 + [Vokal ton çıkarma:RMVPE](https://github.com/Dream-High/RMVPE)
   + Ön eğitimli model [yxlllc](https://github.com/yxlllc/RMVPE) ve [RVC-Boss](https://github.com/RVC-Boss) tarafından eğitilip test edilmiştir.
   
 ## Katkıda Bulunan Herkese Teşekkürler
-<a href="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors" target="_blank">
-  <img src="https://contrib.rocks/image?repo=RVC-Project/Retrieval-based-Voice-Conversion-WebUI" />
-</a>
+[![contributors](https://contrib.rocks/image?repo=fumiama/Retrieval-based-Voice-Conversion-WebUI)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors)
 ```

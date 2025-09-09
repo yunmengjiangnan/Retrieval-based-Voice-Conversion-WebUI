@@ -16,11 +16,9 @@ per = float(sys.argv[6])
 import os
 import traceback
 
-import librosa
 import numpy as np
-from scipy.io import wavfile
 
-from infer.lib.audio import load_audio
+from infer.lib.audio import load_audio, float_np_array_to_wav_buf, save_audio
 from infer.lib.slicer2 import Slicer
 
 f = open("%s/preprocess.log" % exp_dir, "a+")
@@ -64,19 +62,24 @@ class PreProcess:
         tmp_audio = (tmp_audio / tmp_max * (self.max * self.alpha)) + (
             1 - self.alpha
         ) * tmp_audio
-        wavfile.write(
+        save_audio(
             "%s/%s_%s.wav" % (self.gt_wavs_dir, idx0, idx1),
+            tmp_audio,
             self.sr,
-            tmp_audio.astype(np.float32),
+            f32=True,
         )
-        tmp_audio = librosa.resample(
-            tmp_audio, orig_sr=self.sr, target_sr=16000
-        )  # , res_type="soxr_vhq"
-        wavfile.write(
-            "%s/%s_%s.wav" % (self.wavs16k_dir, idx0, idx1),
-            16000,
-            tmp_audio.astype(np.float32),
-        )
+        with open("%s/%s_%s.wav" % (self.wavs16k_dir, idx0, idx1), "wb") as f:
+            f.write(
+                float_np_array_to_wav_buf(
+                    load_audio(
+                        float_np_array_to_wav_buf(tmp_audio, self.sr, f32=True),
+                        sr=16000,
+                        format="wav",
+                    ),
+                    16000,
+                    True,
+                ).getbuffer()
+            )
 
     def pipeline(self, path, idx0):
         try:
@@ -139,4 +142,7 @@ def preprocess_trainset(inp_root, sr, n_p, exp_dir, per):
 
 
 if __name__ == "__main__":
+    from configs import Config
+
+    Config.use_insecure_load()
     preprocess_trainset(inp_root, sr, n_p, exp_dir, per)

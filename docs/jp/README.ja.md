@@ -1,22 +1,22 @@
 <div align="center">
 
-<h1>Retrieval-based-Voice-Conversion-WebUI</h1>
-VITSに基づく使いやすい音声変換（voice changer）framework<br><br>
+# Retrieval-based-Voice-Conversion-WebUI
+VITSに基づく使いやすい音声変換（voice changer）framework
 
-[![madewithlove](https://img.shields.io/badge/made_with-%E2%9D%A4-red?style=for-the-badge&labelColor=orange)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI)
 
-<img src="https://counter.seku.su/cmoe?name=rvc&theme=r34" /><br>
 
-[![RVC v1](https://img.shields.io/badge/RVCv1-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v1.ipynb)
-[![RVC v2](https://img.shields.io/badge/RVCv2-F9AB00?style=for-the-badge&logo=googlecolab&color=525252)](https://colab.research.google.com/github/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/tools/ipynb/v2.ipynb)
-[![Licence](https://img.shields.io/badge/LICENSE-MIT-green.svg?style=for-the-badge)](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
-[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/)
+[![madewithlove](https://img.shields.io/badge/made_with-%E2%9D%A4-red?style=for-the-badge&labelColor=orange)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI)
+
+![moe](https://counter.seku.su/cmoe?name=rvc&theme=r34)
+
+[![Licence](https://img.shields.io/github/license/fumiama/Retrieval-based-Voice-Conversion-WebUI?style=for-the-badge)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/blob/main/LICENSE)
+[![Huggingface](https://img.shields.io/badge/🤗%20-Spaces-yellow.svg?style=for-the-badge)](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/)
 
 [![Discord](https://img.shields.io/badge/RVC%20Developers-Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/HcsmBBGyVk)
 
-[**更新日誌**](./Changelog_JA.md) | [**よくある質問**](./faq_ja.md) | [**AutoDLで推論(中国語のみ)**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/wiki/Autodl%E8%AE%AD%E7%BB%83RVC%C2%B7AI%E6%AD%8C%E6%89%8B%E6%95%99%E7%A8%8B) | [**対照実験記録**](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/wiki/%E5%AF%B9%E7%85%A7%E5%AE%9E%E9%AA%8C%C2%B7%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95) | [**オンラインデモ(中国語のみ)**](https://modelscope.cn/studios/FlowerCry/RVCv2demo)
+[**よくある質問**](./faq_ja.md) | [**AutoDLで推論(中国語のみ)**](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/wiki/Autodl%E8%AE%AD%E7%BB%83RVC%C2%B7AI%E6%AD%8C%E6%89%8B%E6%95%99%E7%A8%8B) | [**対照実験記録**](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/wiki/%E5%AF%B9%E7%85%A7%E5%AE%9E%E9%AA%8C%C2%B7%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95) | [**オンラインデモ(中国語のみ)**](https://modelscope.cn/studios/FlowerCry/RVCv2demo)
 
-[**English**](../en/README.en.md) | [**中文简体**](../../README.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Français**](../fr/README.fr.md) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
+[**English**](../../README.md) | [**中文简体**](../cn/README.cn.md) | [**日本語**](../jp/README.ja.md) | [**한국어**](../kr/README.ko.md) ([**韓國語**](../kr/README.ko.han.md)) | [**Français**](../fr/README.fr.md) | [**Türkçe**](../tr/README.tr.md) | [**Português**](../pt/README.pt.md)
 
 </div>
 
@@ -24,26 +24,15 @@ VITSに基づく使いやすい音声変換（voice changer）framework<br><br>
 
 > RVCv3 の基底モデルをご期待ください。より大きなパラメータ、より大きなデータ、より良い効果を提供し、基本的に同様の推論速度を維持しながら学習に必要なデータ量はより少なくなります。
 
-> モデルや統合パッケージをダウンロードしやすい[RVC-Models-Downloader](https://github.com/RVC-Project/RVC-Models-Downloader)のご利用がお勧めです。
+> モデルや統合パッケージをダウンロードしやすい[RVC-Models-Downloader](https://github.com/fumiama/RVC-Models-Downloader)のご利用がお勧めです。
 
-<table>
-   <tr>
-		<td align="center">学習・推論</td>
-		<td align="center">即時音声変換</td>
-	</tr>
-  <tr>
-		<td align="center"><img src="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/assets/129054828/092e5c12-0d49-4168-a590-0b0ef6a4f630"></td>
-    <td align="center"><img src="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/assets/129054828/730b4114-8805-44a1-ab1a-04668f3c30a6"></td>
-	</tr>
-	<tr>
-		<td align="center">go-web.bat</td>
-		<td align="center">go-realtime-gui.bat</td>
-	</tr>
-  <tr>
-    <td align="center">実行したい操作を自由に選択できます。</td>
-	<td align="center">既に端から端までの170msの遅延を実現しました。ASIO入出力デバイスを使用すれば、端から端までの90msの遅延を達成できますが、ハードウェアドライバーの支援に非常に依存しています。</td>
-	</tr>
-</table>
+| 学習・推論 |
+| :--------: |
+| ![web](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/assets/41315874/17e48404-2627-4fad-a0ec-65f9065aeade) |
+
+| 即時音声変換 |
+| :---------: |
+| ![realtime-gui](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/assets/41315874/95b36866-b92d-40c7-b5db-6a35ca5caeac) |
 
 ## はじめに
 
@@ -88,19 +77,19 @@ sh ./run.sh
 3. 自分の GPU に対応する依存関係をインストールします。
 - Nvidia GPU
 	```bash
-	pip install -r requirements.txt
+	pip install -r requirements/main.txt
 	```
 - AMD/Intel GPU
 	```bash
-	pip install -r requirements-dml.txt
+	pip install -r requirements/dml.txt
 	```
 - AMD ROCM (Linux)
 	```bash
-	pip install -r requirements-amd.txt
+	pip install -r requirements/amd.txt
 	```
 - Intel IPEX (Linux)
 	```bash
-	pip install -r requirements-ipex.txt
+	pip install -r requirements/ipex.txt
 	```
 
 ## その他のデータを準備
@@ -116,11 +105,11 @@ sh ./run.sh
 - 起動時のリソース完全性チェックを不要の場合は、`--nocheck`パラメータを追加してください。
 
 #### リソースのマニュアルダウンロード
-> すべてのリソースファイルは[Hugging Face space](https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main/)にあります。
+> すべてのリソースファイルは[Hugging Face space](https://huggingface.co/fumiama/RVC-Pretrained-Models/tree/main/)にあります。
 
 > `tools`フォルダでそれらをダウンロードするスクリプトを見つけることができます。
 
-> モデル/統合パッケージ/ツールの一括ダウンローダー、[RVC-Models-Downloader](https://github.com/RVC-Project/RVC-Models-Downloader)も使用できます。
+> モデル/統合パッケージ/ツールの一括ダウンローダー、[RVC-Models-Downloader](https://github.com/fumiama/RVC-Models-Downloader)も使用できます。
 
 以下は、RVCが必要とするすべての事前モデルデータやその他のファイルの名前を含むリストです。
 
@@ -143,43 +132,23 @@ v2バージョンのモデルを使用したい場合は、追加ダウンロー
 	rvcmd assets/v2 # RVC-Models-Downloader command
 	```
 
-### 2. ffmpegツールのインストール
-`ffmpeg`と`ffprobe`がすでにインストールされている場合は、このステップをスキップできます。
-
-#### Ubuntu/Debian
-```bash
-sudo apt install ffmpeg
-```
-#### MacOS
-```bash
-brew install ffmpeg
-```
-#### Windows
-ダウンロード後、ルートディレクトリに配置しましょう。
-```bash
-rvcmd tools/ffmpeg # RVC-Models-Downloader command
-```
-- [ffmpeg.exe](https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/ffmpeg.exe)
-
-- [ffprobe.exe](https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/ffprobe.exe)
-
-### 3. RMVPE人声音高抽出アルゴリズムに必要なファイルのダウンロード
+### 2. RMVPE人声音高抽出アルゴリズムに必要なファイルのダウンロード
 
 最新のRMVPE人声音高抽出アルゴリズムを使用したい場合は、音高抽出モデルをダウンロードし、`assets/rmvpe`に配置する必要があります。
 
-- [rmvpe.pt](https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/rmvpe.pt)
+- [rmvpe.pt](https://huggingface.co/fumiama/RVC-Pretrained-Models/blob/main/rmvpe/rmvpe.pt)
 	```bash
 	rvcmd assets/rmvpe # RVC-Models-Downloader command
 	```
 
 #### RMVPE(dml環境)のダウンロード（オプション、AMD/Intel GPU ユーザー）
 
-- [rmvpe.onnx](https://huggingface.co/lj1995/VoiceConversionWebUI/blob/main/rmvpe.onnx)
+- [rmvpe.onnx](https://huggingface.co/fumiama/RVC-Pretrained-Models/blob/main/rmvpe/rmvpe.onnx)
 	```bash
 	rvcmd assets/rmvpe # RVC-Models-Downloader command
 	```
 
-### 4. AMD ROCM（オプション、Linuxのみ）
+### 3. AMD ROCM（オプション、Linuxのみ）
 
 AMDのRocm技術を基にLinuxシステムでRVCを実行したい場合は、まず[ここ](https://rocm.docs.amd.com/en/latest/deploy/linux/os-native/install.html)で必要なドライバをインストールしてください。
 
@@ -202,7 +171,7 @@ sudo usermod -aG video $USERNAME
 ### 直接起動
 以下のコマンドで WebUI を起動します
 ```bash
-python infer-web.py
+python web.py
 ```
 ### Linux/MacOS
 ```bash
@@ -224,7 +193,6 @@ rvcmd packs/general/latest # RVC-Models-Downloader command
 - [VITS](https://github.com/jaywalnut310/vits)
 - [HIFIGAN](https://github.com/jik876/hifi-gan)
 - [Gradio](https://github.com/gradio-app/gradio)
-- [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 - [Ultimate Vocal Remover](https://github.com/Anjok07/ultimatevocalremovergui)
 - [audio-slicer](https://github.com/openvpi/audio-slicer)
 - [Vocal pitch extraction:RMVPE](https://github.com/Dream-High/RMVPE)
@@ -232,6 +200,4 @@ rvcmd packs/general/latest # RVC-Models-Downloader command
 
 ## すべての貢献者の努力に感謝します
 
-<a href="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors" target="_blank">
-  <img src="https://contrib.rocks/image?repo=RVC-Project/Retrieval-based-Voice-Conversion-WebUI" />
-</a>
+[![contributors](https://contrib.rocks/image?repo=fumiama/Retrieval-based-Voice-Conversion-WebUI)](https://github.com/fumiama/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors)

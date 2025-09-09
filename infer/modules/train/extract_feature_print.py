@@ -2,6 +2,11 @@ import os
 import sys
 import traceback
 
+now_dir = os.getcwd()
+sys.path.append(now_dir)
+
+from infer.lib.audio import load_audio
+
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 
@@ -18,11 +23,15 @@ else:
     os.environ["CUDA_VISIBLE_DEVICES"] = str(i_gpu)
     version = sys.argv[6]
     is_half = sys.argv[7].lower() == "true"
+
 import fairseq
 import numpy as np
-import soundfile as sf
 import torch
 import torch.nn.functional as F
+
+from configs import Config
+
+Config.use_insecure_load()
 
 if "privateuseone" not in device:
     device = "cpu"
@@ -31,7 +40,7 @@ if "privateuseone" not in device:
     elif torch.backends.mps.is_available():
         device = "mps"
 else:
-    import torch_directml
+    import torch_directml  # type: ignore
 
     device = torch_directml.device(torch_directml.default_device())
 
@@ -64,11 +73,9 @@ os.makedirs(outPath, exist_ok=True)
 
 # wave must be 16k, hop_size=320
 def readwave(wav_path, normalize=False):
-    wav, sr = sf.read(wav_path)
+    wav, sr = load_audio(wav_path)
     assert sr == 16000
     feats = torch.from_numpy(wav).float()
-    if feats.dim() == 2:  # double channels
-        feats = feats.mean(-1)
     assert feats.dim() == 1, feats.dim()
     if normalize:
         with torch.no_grad():
@@ -81,10 +88,7 @@ def readwave(wav_path, normalize=False):
 printt("load model(s) from {}".format(model_path))
 # if hubert model is exist
 if os.access(model_path, os.F_OK) == False:
-    printt(
-        "Error: Extracting is shut down because %s does not exist, you may download it from https://huggingface.co/lj1995/VoiceConversionWebUI/tree/main"
-        % model_path
-    )
+    printt("Error: Extracting is shut down because %s does not exist." % model_path)
     exit(0)
 models, saved_cfg, task = fairseq.checkpoint_utils.load_model_ensemble_and_task(
     [model_path],

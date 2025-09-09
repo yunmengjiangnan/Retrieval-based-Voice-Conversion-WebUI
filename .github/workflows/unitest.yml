@@ -18,20 +18,19 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt -y install ffmpeg
-        wget https://github.com/RVC-Project/RVC-Models-Downloader/releases/download/v0.2.2/rvcmd_linux_amd64.deb
+        wget https://github.com/fumiama/RVC-Models-Downloader/releases/download/v0.2.5/rvcmd_linux_amd64.deb
         sudo apt -y install ./rvcmd_linux_amd64.deb
-        python -m pip install --upgrade pip
+        pip install --force pip==24.0 # fix fairseq installing issue https://github.com/facebookresearch/fairseq/issues/5552
         python -m pip install --upgrade setuptools
         python -m pip install --upgrade wheel
         pip install torch torchvision torchaudio
-        pip install -r requirements.txt
-        rvcmd -notrs -w 1 -notui assets/all
+        pip install -r requirements/main.txt
+        rvcmd -notrs -w 1 -notui assets/rvc
     - name: Test step 1 & 2
       run: |
         mkdir -p logs/mi-test
         touch logs/mi-test/preprocess.log
         python infer/modules/train/preprocess.py logs/mute/0_gt_wavs 48000 8 logs/mi-test True 3.7
         touch logs/mi-test/extract_f0_feature.log
-        python infer/modules/train/extract/extract_f0_print.py logs/mi-test $(nproc) pm
+        python infer/modules/train/extract_f0_print.py logs/mi-test $(nproc) pm cpu False
         python infer/modules/train/extract_feature_print.py cpu 1 0 0 logs/mi-test v1 True
