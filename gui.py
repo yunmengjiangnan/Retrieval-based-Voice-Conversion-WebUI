@@ -156,6 +156,8 @@ if __name__ == "__main__":
             self.play_ptr = None
             self.in_evt = None
             self.stop_evt = None
+            self.samplerate_choices = [44100, 48000, 32000, 16000]  # 常见采样率
+            self.selected_samplerate = 48000  # 默认优先48000
             self.update_devices()
             self.launcher()
 
@@ -250,6 +252,12 @@ if __name__ == "__main__":
             data = self.load()
             self.config.use_jit = False  # data.get("use_jit", self.config.use_jit)
             sg.theme("LightBlue3")
+            # 获取当前输入设备支持的采样率（简单实现：用常见采样率，后续可扩展为自动探测）
+            samplerate_list = self.samplerate_choices
+            if hasattr(self, "selected_samplerate"):
+                default_sr = self.selected_samplerate
+            else:
+                default_sr = 48000
             layout = [
                 [
                     sg.Frame(
@@ -340,6 +348,13 @@ if __name__ == "__main__":
                                     enable_events=True,
                                 ),
                                 sg.Text(i18n("Sampling rate")),
+                                sg.Combo(
+                                    samplerate_list,
+                                    key="samplerate_select",
+                                    default_value=default_sr,
+                                    enable_events=True,
+                                    size=(8, 1),
+                                ),
                                 sg.Text("", key="sr_stream"),
                             ],
                         ],
@@ -576,7 +591,9 @@ if __name__ == "__main__":
                 event, values = self.window.read()
                 if event == sg.WINDOW_CLOSED:
                     self.stop_stream()
-                    # exit()
+                    break
+                if event == "samplerate_select":
+                    self.selected_samplerate = int(values["samplerate_select"])
                 if event == "reload_devices" or event == "sg_hostapi":
                     self.gui_config.sg_hostapi = values["sg_hostapi"]
                     self.update_devices(hostapi_name=values["sg_hostapi"])
@@ -601,6 +618,9 @@ if __name__ == "__main__":
                     )
                 if event == "start_vc" and not flag_vc:
                     if self.set_values(values) == True:
+                        # 采样率选择
+                        if "samplerate_select" in values:
+                            self.selected_samplerate = int(values["samplerate_select"])
                         printt("cuda_is_available: %s", torch.cuda.is_available())
                         self.start_vc()
                         settings = {
@@ -646,6 +666,7 @@ if __name__ == "__main__":
                                     values["fcpe"],
                                 ].index(True)
                             ],
+                            "samplerate": int(values["samplerate_select"]) if "samplerate_select" in values else self.selected_samplerate,
                         }
                         with open("configs/inuse/config.json", "w") as j:
                             json.dump(settings, j)
@@ -697,7 +718,6 @@ if __name__ == "__main__":
                 elif event in ["vc", "im"]:
                     self.function = event
                 elif event == "stop_vc" or event != "start_vc":
-                    # Other parameters do not support hot update
                     self.stop_stream()
 
         def set_values(self, values):
@@ -1170,7 +1190,7 @@ if __name__ == "__main__":
             ]
 
         def set_devices(self, input_device, output_device):
-            """设置输出设备"""
+            """设置输出设备，并检测采样率支持情况"""
             sd.default.device[0] = self.input_devices_indices[
                 self.input_devices.index(input_device)
             ]
@@ -1179,11 +1199,24 @@ if __name__ == "__main__":
             ]
             printt("Input device: %s:%s", str(sd.default.device[0]), input_device)
             printt("Output device: %s:%s", str(sd.default.device[1]), output_device)
+            # 检查输入设备是否支持所选采样率
+            sr = int(getattr(self, "selected_samplerate", 48000))
+            dev_info = sd.query_devices(device=sd.default.device[0])
+            # sounddevice没有直接列出所有支持的采样率，只能用try/except测试
+            try:
+                sd.check_input_settings(device=sd.default.device[0], samplerate=sr)
+                self.selected_samplerate = sr
+                printt("采样率已统一为: %d", sr)
+            except Exception as e:
+                # 回退到设备默认采样率
+                fallback_sr = int(dev_info.get("default_samplerate", 44100))
+                self.selected_samplerate = fallback_sr
+                printt("所选采样率%d不被设备支持，已回退为设备默认采样率: %d", sr, fallback_sr)
+                sg.popup(f"所选采样率{sr}Hz不被输入设备支持，已回退为{fallback_sr}Hz")
 
         def get_device_samplerate(self):
-            return int(
-                sd.query_devices(device=sd.default.device[0])["default_samplerate"]
-            )
+            # 返回用户在GUI选择的采样率
+            return int(getattr(self, "selected_samplerate", 48000))
 
         def get_device_channels(self):
             max_input_channels = sd.query_devices(device=sd.default.device[0])[

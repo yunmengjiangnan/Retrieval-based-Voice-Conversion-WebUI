@@ -3,10 +3,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: gui_v1.py",
+            "name": "Python: gui.py",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/gui_v1.py",
+            "program": "${workspaceFolder}/gui.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
