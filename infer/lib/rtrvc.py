@@ -1,7 +1,8 @@
 from io import BytesIO
 from fairseq.data.dictionary import Dictionary
 import torch
-if hasattr(torch.serialization, 'add_safe_globals'):
+
+if hasattr(torch.serialization, "add_safe_globals"):
     torch.serialization.add_safe_globals([Dictionary])
 import os
 from typing import Union, Literal, Optional

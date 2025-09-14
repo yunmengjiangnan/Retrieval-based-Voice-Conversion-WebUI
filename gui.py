@@ -1,4 +1,3 @@
-
 import os
 import sys
 from dotenv import load_dotenv
@@ -587,9 +586,9 @@ if __name__ == "__main__":
             self.window = sg.Window("RVC - GUI", layout=layout, finalize=True)
             self.event_handler()
 
-
         def event_handler(self):
             import traceback
+
             global flag_vc
             while True:
                 try:
@@ -603,7 +602,23 @@ if __name__ == "__main__":
                         self.handle_device_event(values)
                     elif event == "start_vc" and not flag_vc:
                         self.handle_start_vc(values)
-                    elif event in ["threhold", "pitch", "formant", "index_rate", "rms_mix_rate", "pm", "harvest", "crepe", "rmvpe", "fcpe", "I_noise_reduce", "O_noise_reduce", "use_pv", "vc", "im"]:
+                    elif event in [
+                        "threhold",
+                        "pitch",
+                        "formant",
+                        "index_rate",
+                        "rms_mix_rate",
+                        "pm",
+                        "harvest",
+                        "crepe",
+                        "rmvpe",
+                        "fcpe",
+                        "I_noise_reduce",
+                        "O_noise_reduce",
+                        "use_pv",
+                        "vc",
+                        "im",
+                    ]:
                         self.handle_param_update(event, values)
                     elif event == "stop_vc" or event != "start_vc":
                         self.stop_stream()
@@ -615,7 +630,10 @@ if __name__ == "__main__":
             try:
                 self.selected_samplerate = int(values["samplerate_select"])
             except Exception:
-                import traceback; print("[GUI ERROR] samplerate_select:"); traceback.print_exc()
+                import traceback
+
+                print("[GUI ERROR] samplerate_select:")
+                traceback.print_exc()
 
         def handle_device_event(self, values):
             try:
@@ -641,7 +659,10 @@ if __name__ == "__main__":
                     value=self.gui_config.sg_output_device
                 )
             except Exception:
-                import traceback; print("[GUI ERROR] device_event:"); traceback.print_exc()
+                import traceback
+
+                print("[GUI ERROR] device_event:")
+                traceback.print_exc()
 
         def handle_start_vc(self, values):
             try:
@@ -691,7 +712,11 @@ if __name__ == "__main__":
                                 values["fcpe"],
                             ].index(True)
                         ],
-                        "samplerate": int(values["samplerate_select"]) if "samplerate_select" in values else self.selected_samplerate,
+                        "samplerate": (
+                            int(values["samplerate_select"])
+                            if "samplerate_select" in values
+                            else self.selected_samplerate
+                        ),
                     }
                     with open("configs/inuse/config.json", "w") as j:
                         json.dump(settings, j)
@@ -709,7 +734,10 @@ if __name__ == "__main__":
                         int(np.round(self.delay_time * 1000))
                     )
             except Exception:
-                import traceback; print("[GUI ERROR] start_vc:"); traceback.print_exc()
+                import traceback
+
+                print("[GUI ERROR] start_vc:")
+                traceback.print_exc()
 
         def handle_param_update(self, event, values):
             try:
@@ -747,7 +775,10 @@ if __name__ == "__main__":
                 elif event in ["vc", "im"]:
                     self.function = event
             except Exception:
-                import traceback; print(f"[GUI ERROR] param_update {event}:"); traceback.print_exc()
+                import traceback
+
+                print(f"[GUI ERROR] param_update {event}:")
+                traceback.print_exc()
 
         def set_values(self, values):
             if len(values["pth_path"].strip()) == 0:
@@ -1240,7 +1271,11 @@ if __name__ == "__main__":
                 # 回退到设备默认采样率
                 fallback_sr = int(dev_info.get("default_samplerate", 44100))
                 self.selected_samplerate = fallback_sr
-                printt("所选采样率%d不被设备支持，已回退为设备默认采样率: %d", sr, fallback_sr)
+                printt(
+                    "所选采样率%d不被设备支持，已回退为设备默认采样率: %d",
+                    sr,
+                    fallback_sr,
+                )
                 sg.popup(f"所选采样率{sr}Hz不被输入设备支持，已回退为{fallback_sr}Hz")
 
         def get_device_samplerate(self):
