@@ -1,7 +1,9 @@
+
 import os
 import sys
 from dotenv import load_dotenv
 import shutil
+from configs.config_manager import ConfigManager
 
 load_dotenv()
 load_dotenv("sha256.env")
@@ -585,105 +587,132 @@ if __name__ == "__main__":
             self.window = sg.Window("RVC - GUI", layout=layout, finalize=True)
             self.event_handler()
 
+
         def event_handler(self):
+            import traceback
             global flag_vc
             while True:
-                event, values = self.window.read()
-                if event == sg.WINDOW_CLOSED:
-                    self.stop_stream()
-                    break
-                if event == "samplerate_select":
-                    self.selected_samplerate = int(values["samplerate_select"])
-                if event == "reload_devices" or event == "sg_hostapi":
-                    self.gui_config.sg_hostapi = values["sg_hostapi"]
-                    self.update_devices(hostapi_name=values["sg_hostapi"])
-                    if self.gui_config.sg_hostapi not in self.hostapis:
-                        self.gui_config.sg_hostapi = self.hostapis[0]
-                    self.window["sg_hostapi"].Update(values=self.hostapis)
-                    self.window["sg_hostapi"].Update(value=self.gui_config.sg_hostapi)
-                    if (
-                        self.gui_config.sg_input_device not in self.input_devices
-                        and len(self.input_devices) > 0
-                    ):
-                        self.gui_config.sg_input_device = self.input_devices[0]
-                    self.window["sg_input_device"].Update(values=self.input_devices)
-                    self.window["sg_input_device"].Update(
-                        value=self.gui_config.sg_input_device
-                    )
-                    if self.gui_config.sg_output_device not in self.output_devices:
-                        self.gui_config.sg_output_device = self.output_devices[0]
-                    self.window["sg_output_device"].Update(values=self.output_devices)
-                    self.window["sg_output_device"].Update(
-                        value=self.gui_config.sg_output_device
-                    )
-                if event == "start_vc" and not flag_vc:
-                    if self.set_values(values) == True:
-                        # 采样率选择
-                        if "samplerate_select" in values:
-                            self.selected_samplerate = int(values["samplerate_select"])
-                        printt("cuda_is_available: %s", torch.cuda.is_available())
-                        self.start_vc()
-                        settings = {
-                            "pth_path": values["pth_path"],
-                            "index_path": values["index_path"],
-                            "sg_hostapi": values["sg_hostapi"],
-                            "sg_wasapi_exclusive": values["sg_wasapi_exclusive"],
-                            "sg_input_device": values["sg_input_device"],
-                            "sg_output_device": values["sg_output_device"],
-                            "sr_type": ["sr_model", "sr_device"][
-                                [
-                                    values["sr_model"],
-                                    values["sr_device"],
-                                ].index(True)
-                            ],
-                            "threhold": values["threhold"],
-                            "pitch": values["pitch"],
-                            "formant": values["formant"],
-                            "rms_mix_rate": values["rms_mix_rate"],
-                            "index_rate": values["index_rate"],
-                            # "device_latency": values["device_latency"],
-                            "block_time": values["block_time"],
-                            "crossfade_length": values["crossfade_length"],
-                            "extra_time": values["extra_time"],
-                            "n_cpu": values["n_cpu"],
-                            # "use_jit": values["use_jit"],
-                            "use_jit": False,
-                            "use_pv": values["use_pv"],
-                            "f0method": [
-                                "pm",
-                                "dio",
-                                "harvest",
-                                "crepe",
-                                "rmvpe",
-                                "fcpe",
-                            ][
-                                [
-                                    values["pm"],
-                                    values["dio"],
-                                    values["harvest"],
-                                    values["crepe"],
-                                    values["rmvpe"],
-                                    values["fcpe"],
-                                ].index(True)
-                            ],
-                            "samplerate": int(values["samplerate_select"]) if "samplerate_select" in values else self.selected_samplerate,
-                        }
-                        with open("configs/inuse/config.json", "w") as j:
-                            json.dump(settings, j)
-                        if self.stream is not None:
-                            self.delay_time = (
-                                self.stream.get_latency()
-                                + values["block_time"]
-                                + values["crossfade_length"]
-                                + 0.01
-                            )
-                        if values["I_noise_reduce"]:
-                            self.delay_time += min(values["crossfade_length"], 0.04)
-                        self.window["sr_stream"].update(self.gui_config.samplerate)
-                        self.window["delay_time"].update(
-                            int(np.round(self.delay_time * 1000))
+                try:
+                    event, values = self.window.read()
+                    if event == sg.WINDOW_CLOSED:
+                        self.stop_stream()
+                        break
+                    if event == "samplerate_select":
+                        self.handle_samplerate_select(values)
+                    elif event in ("reload_devices", "sg_hostapi"):
+                        self.handle_device_event(values)
+                    elif event == "start_vc" and not flag_vc:
+                        self.handle_start_vc(values)
+                    elif event in ["threhold", "pitch", "formant", "index_rate", "rms_mix_rate", "pm", "harvest", "crepe", "rmvpe", "fcpe", "I_noise_reduce", "O_noise_reduce", "use_pv", "vc", "im"]:
+                        self.handle_param_update(event, values)
+                    elif event == "stop_vc" or event != "start_vc":
+                        self.stop_stream()
+                except Exception as e:
+                    print("[GUI ERROR] Exception in event loop:")
+                    traceback.print_exc()
+
+        def handle_samplerate_select(self, values):
+            try:
+                self.selected_samplerate = int(values["samplerate_select"])
+            except Exception:
+                import traceback; print("[GUI ERROR] samplerate_select:"); traceback.print_exc()
+
+        def handle_device_event(self, values):
+            try:
+                self.gui_config.sg_hostapi = values["sg_hostapi"]
+                self.update_devices(hostapi_name=values["sg_hostapi"])
+                if self.gui_config.sg_hostapi not in self.hostapis:
+                    self.gui_config.sg_hostapi = self.hostapis[0]
+                self.window["sg_hostapi"].Update(values=self.hostapis)
+                self.window["sg_hostapi"].Update(value=self.gui_config.sg_hostapi)
+                if (
+                    self.gui_config.sg_input_device not in self.input_devices
+                    and len(self.input_devices) > 0
+                ):
+                    self.gui_config.sg_input_device = self.input_devices[0]
+                self.window["sg_input_device"].Update(values=self.input_devices)
+                self.window["sg_input_device"].Update(
+                    value=self.gui_config.sg_input_device
+                )
+                if self.gui_config.sg_output_device not in self.output_devices:
+                    self.gui_config.sg_output_device = self.output_devices[0]
+                self.window["sg_output_device"].Update(values=self.output_devices)
+                self.window["sg_output_device"].Update(
+                    value=self.gui_config.sg_output_device
+                )
+            except Exception:
+                import traceback; print("[GUI ERROR] device_event:"); traceback.print_exc()
+
+        def handle_start_vc(self, values):
+            try:
+                if self.set_values(values) == True:
+                    if "samplerate_select" in values:
+                        self.selected_samplerate = int(values["samplerate_select"])
+                    printt("cuda_is_available: %s", torch.cuda.is_available())
+                    self.start_vc()
+                    settings = {
+                        "pth_path": values["pth_path"],
+                        "index_path": values["index_path"],
+                        "sg_hostapi": values["sg_hostapi"],
+                        "sg_wasapi_exclusive": values["sg_wasapi_exclusive"],
+                        "sg_input_device": values["sg_input_device"],
+                        "sg_output_device": values["sg_output_device"],
+                        "sr_type": ["sr_model", "sr_device"][
+                            [
+                                values["sr_model"],
+                                values["sr_device"],
+                            ].index(True)
+                        ],
+                        "threhold": values["threhold"],
+                        "pitch": values["pitch"],
+                        "formant": values["formant"],
+                        "rms_mix_rate": values["rms_mix_rate"],
+                        "index_rate": values["index_rate"],
+                        "block_time": values["block_time"],
+                        "crossfade_length": values["crossfade_length"],
+                        "extra_time": values["extra_time"],
+                        "n_cpu": values["n_cpu"],
+                        "use_jit": False,
+                        "use_pv": values["use_pv"],
+                        "f0method": [
+                            "pm",
+                            "dio",
+                            "harvest",
+                            "crepe",
+                            "rmvpe",
+                            "fcpe",
+                        ][
+                            [
+                                values["pm"],
+                                values["dio"],
+                                values["harvest"],
+                                values["crepe"],
+                                values["rmvpe"],
+                                values["fcpe"],
+                            ].index(True)
+                        ],
+                        "samplerate": int(values["samplerate_select"]) if "samplerate_select" in values else self.selected_samplerate,
+                    }
+                    with open("configs/inuse/config.json", "w") as j:
+                        json.dump(settings, j)
+                    if self.stream is not None:
+                        self.delay_time = (
+                            self.stream.get_latency()
+                            + values["block_time"]
+                            + values["crossfade_length"]
+                            + 0.01
                         )
-                # Parameter hot update
+                    if values["I_noise_reduce"]:
+                        self.delay_time += min(values["crossfade_length"], 0.04)
+                    self.window["sr_stream"].update(self.gui_config.samplerate)
+                    self.window["delay_time"].update(
+                        int(np.round(self.delay_time * 1000))
+                    )
+            except Exception:
+                import traceback; print("[GUI ERROR] start_vc:"); traceback.print_exc()
+
+        def handle_param_update(self, event, values):
+            try:
                 if event == "threhold":
                     self.gui_config.threhold = values["threhold"]
                 elif event == "pitch":
@@ -717,8 +746,8 @@ if __name__ == "__main__":
                     self.gui_config.use_pv = values["use_pv"]
                 elif event in ["vc", "im"]:
                     self.function = event
-                elif event == "stop_vc" or event != "start_vc":
-                    self.stop_stream()
+            except Exception:
+                import traceback; print(f"[GUI ERROR] param_update {event}:"); traceback.print_exc()
 
         def set_values(self, values):
             if len(values["pth_path"].strip()) == 0:
