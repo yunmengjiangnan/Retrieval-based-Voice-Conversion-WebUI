@@ -393,8 +393,9 @@ class VoiceConversionGUIMain:
             config["sg_hostapi"] = self.hostapi_list[0] if self.hostapi_list else ""
             print_with_format(f"[Config Validate] 主机API无效，重置为：{config['sg_hostapi']}")
         
-        # 重新获取该API下的设备列表（避免API不匹配）
-        self.update_audio_devices(hostapi_name=config["sg_hostapi"])
+        # 只有当API确实发生变化时，才重新获取设备列表
+        if config["sg_hostapi"] != self.gui_config.hostapi_name:
+            self.update_audio_devices(hostapi_name=config["sg_hostapi"])
         
         # 验证输入设备
         if config.get("sg_input_device") not in self.input_device_list:
@@ -681,35 +682,15 @@ class VoiceConversionGUIMain:
                 ],
                 [
                     sg.Text(i18n("Pitch Detection Algorithm")),
-                    sg.Radio(
-                        "PM", key="f0_pm", 
-                        default=saved_config.get("f0method") == "pm",
-                        enable_events=True, group_id="f0_method"
-                    ),
-                    sg.Radio(
-                        "DIO", key="f0_dio", 
-                        default=saved_config.get("f0method") == "dio",
-                        enable_events=True, group_id="f0_method"
-                    ),
-                    sg.Radio(
-                        "Harvest", key="f0_harvest", 
-                        default=saved_config.get("f0method") == "harvest",
-                        enable_events=True, group_id="f0_method"
-                    ),
-                    sg.Radio(
-                        "CREPE", key="f0_crepe", 
-                        default=saved_config.get("f0method") == "crepe",
-                        enable_events=True, group_id="f0_method"
-                    ),
-                    sg.Radio(
-                        "RMVPE", key="f0_rmvpe", 
-                        default=saved_config.get("f0method") == "rmvpe",
-                        enable_events=True, group_id="f0_method"
-                    ),
-                    sg.Radio(
-                        "FCPE", key="f0_fcpe", 
-                        default=saved_config.get("f0method") == "fcpe",
-                        enable_events=True, group_id="f0_method"
+                    sg.Combo(
+                        values=["pm", "dio", 
+                                "harvest", "crepe", 
+                                "rmvpe", "fcpe"],
+                        key="f0_method",
+                        default_value=saved_config.get("f0method", "fcpe"),
+                        enable_events=True,
+                        size=(10, 1),
+                        readonly=True
                     )
                 ]
             ],
@@ -1005,15 +986,10 @@ class VoiceConversionGUIMain:
         self.gui_config.input_device_name = values["input_device"]
         self.gui_config.output_device_name = values["output_device"]
         
-        # 确定基频提取方法
-        f0_methods = {
-            "f0_pm": "pm", "f0_dio": "dio", "f0_harvest": "harvest",
-            "f0_crepe": "crepe", "f0_rmvpe": "rmvpe", "f0_fcpe": "fcpe"
-        }
-        for key, method in f0_methods.items():
-            if values[key]:
-                self.gui_config.f0_extract_method = method
-                break
+        # 确定基频提取方法 - 使用下拉框选择的值
+        if "f0_method" in values and values["f0_method"]:
+            # 直接使用下拉框选择的值
+            self.gui_config.f0_extract_method = values["f0_method"]
         
         return True
 
@@ -1623,12 +1599,9 @@ class VoiceConversionGUIMain:
             elif event == "rms_mix_ratio":
                 self.gui_config.rms_mix_ratio = values["rms_mix_ratio"]
                 
-            elif event in ["f0_pm", "f0_dio", "f0_harvest", "f0_crepe", "f0_rmvpe", "f0_fcpe"]:
-                f0_methods = {
-                    "f0_pm": "pm", "f0_dio": "dio", "f0_harvest": "harvest",
-                    "f0_crepe": "crepe", "f0_rmvpe": "rmvpe", "f0_fcpe": "fcpe"
-                }
-                self.gui_config.f0_extract_method = f0_methods[event]
+            elif event == "f0_method":
+                # 直接使用下拉框选择的值
+                self.gui_config.f0_extract_method = values["f0_method"]
                 
             elif event == "enable_input_denoise":
                 self.gui_config.enable_input_denoise = values["enable_input_denoise"]

@@ -1,6 +1,7 @@
 import json
 import locale
 import os
+import json
 from configs import Singleton
 
 
